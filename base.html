@@ -1,0 +1,41 @@
+<form action="" onsubmit="sendMessage(event)" method="post">
+    <input type="text" name="chat" id="chat_id"/>
+    <button onclick="connect(event)">Connect</button>
+  
+    <input type="text" name="message" id="message" />
+  
+    <button type="submit">Send message</button>
+  </form>
+  
+  <ul id="messages"></ul>
+  
+  <script>
+    const messages = document.getElementById("messages");
+    const chat_id = document.getElementById("chat_id");
+  
+    let ws = new WebSocket(`ws://localhost:8080/ws/${chat_id.value}`);
+    const input = document.getElementById("message");
+  
+    function connect(event) {
+      ws = new WebSocket(`ws://localhost:8080/ws/${chat_id.value}`);
+      ws.onmessage = on_ws_message;
+      event.preventDefault();
+    }
+  
+    function on_ws_message(event) {
+      const message = document.createElement("li");
+      const content = document.createTextNode(event.data);
+      message.appendChild(content);
+      messages.appendChild(message);
+    }
+    ws.onmessage = on_ws_message;
+    function sendMessage(event) {
+      const messageData = {
+        chat: chat_id.value,
+        message: document.getElementById("message").value,
+      };
+      ws.send(JSON.stringify(messageData));
+      document.getElementById("message").value = "";
+      event.preventDefault();
+    }
+  </script>
